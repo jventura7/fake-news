@@ -40,7 +40,7 @@ def log_reg_train(data, labels, model, check_gradient=False):
     :return: the learned model
     :rtype: dict
     """
-    d, n = data.shape
+    n, d = data.shape
     weights = model['weights'].ravel()
 
     def log_reg_nll(new_weights):
@@ -53,7 +53,7 @@ def log_reg_train(data, labels, model, check_gradient=False):
         :rtype: float
         """
         # reshape the weights, which the optimizer prefers to be a vector, to the more convenient matrix form
-        new_weights = new_weights.reshape((d, -1))
+        new_weights = new_weights.reshape((n, -1))
         num_classes = np.shape(new_weights)[1]
         # TODO fill in your code here to compute the objective value (nll)
         sum_log = 0
@@ -71,7 +71,7 @@ def log_reg_train(data, labels, model, check_gradient=False):
 
         # TODO fill in your code here to compute the gradient fake news how to turn list of strings to
         # compute the gradient
-        gradient = np.zeros((d, num_classes))
+        gradient = np.zeros((n, num_classes))
         mult = np.dot(np.transpose(new_weights), data)
         p_ij = np.transpose(np.exp(mult - logsumexp(mult, 0)))
         for i in range(num_classes):
