@@ -40,7 +40,7 @@ def log_reg_train(data, labels, model, check_gradient=False):
     :return: the learned model
     :rtype: dict
     """
-    n, d = data.shape
+    d, n = data.shape
     weights = model['weights'].ravel()
 
     def log_reg_nll(new_weights):
@@ -53,9 +53,8 @@ def log_reg_train(data, labels, model, check_gradient=False):
         :rtype: float
         """
         # reshape the weights, which the optimizer prefers to be a vector, to the more convenient matrix form
-        new_weights = new_weights.reshape((n, -1))
+        new_weights = new_weights.reshape((d, -1))
         num_classes = np.shape(new_weights)[1]
-        # TODO fill in your code here to compute the objective value (nll)
         sum_log = 0
         for j in range(n):
             log_sum_exp = logsumexp(np.dot(np.transpose(new_weights), data[:, j]), 0)
@@ -63,28 +62,17 @@ def log_reg_train(data, labels, model, check_gradient=False):
 
         sum_second = 0
         for j in range(n):
-            # print(j, labels[j], data[:, j])
             dot = np.dot(np.transpose(new_weights[:, labels[j]]), data[:, j])
             sum_second = sum_second + dot
 
         nll = sum_log - sum_second
 
-        # TODO fill in your code here to compute the gradient fake news how to turn list of strings to
-        # compute the gradient
-        gradient = np.zeros((n, num_classes))
+        gradient = np.zeros((d, num_classes))
         mult = np.dot(np.transpose(new_weights), data)
         p_ij = np.transpose(np.exp(mult - logsumexp(mult, 0)))
         for i in range(num_classes):
-            calc_gradient = 0
-            for j in range(n):
-                if labels[j] == i:
-                    identifier = 1
-                else:
-                    identifier = 0
-                p = p_ij[j, i] - identifier
-                calc_gradient = calc_gradient + (data[:, j] * p)
-            gradient[:, i] = calc_gradient
-
+            gradient[:, i] = data.dot(p_ij[:, i] - (labels == i))
+            print(gradient[:, i])
         return nll, gradient
 
     if check_gradient:
